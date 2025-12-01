@@ -52,3 +52,4 @@ forums regard as a good limit, all though I was unable to find any official docu
 
 (platform IO reference)[https://docs.platformio.org/en/latest/boards/nordicnrf52/nano33ble.html]
 (Nano 33. Pin layout)[https://docs.arduino.cc/resources/pinouts/ABX00030-full-pinout.pdf]
+(nanopb/Nanopb)[https://registry.platformio.org/libraries/nanopb/Nanopb/examples/network_server]

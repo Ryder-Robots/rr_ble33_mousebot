@@ -27,7 +27,6 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "rr_serial.pb.h"
-#include "HardwareSerial.h"
 
 #define TERM_CHAR 0x1E
 

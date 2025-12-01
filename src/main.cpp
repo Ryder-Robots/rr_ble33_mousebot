@@ -18,30 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/** 
-* ### Commands
-* | ID      | CONSTANT        |  SENSOR   | DESCRIPTION              |
-* | ------  | --------------  | --------- | ------------------------ |
-* | 200     | MSP_SET_RAW_RC. | Motors.   | Sets motors              |
-*
-*
-* ### Monitor Commands
-*
-* | ID.     | CONSTANT        |  SENSOR   | DESCRIPTION              |
-* | ------  | --------------  | --------- | ------------------------ |
-* | 102     | MSP_RAW_IMU.    | IMU       | Monitor IMU details      |
-* | 104     | MSP_MOTOR       | MOTORS    | Set, or monitor motors.  |
-* | 105     | MSP_RAW_SENSORS | Range     | Range sensors            |
-*/
+/**
+ * ### Commands
+ * | ID      | CONSTANT        |  SENSOR   | DESCRIPTION              |
+ * | ------  | --------------  | --------- | ------------------------ |
+ * | 200     | MSP_SET_RAW_RC. | Motors.   | Sets motors              |
+ *
+ *
+ * ### Monitor Commands
+ *
+ * | ID.     | CONSTANT        |  SENSOR   | DESCRIPTION              |
+ * | ------  | --------------  | --------- | ------------------------ |
+ * | 102     | MSP_RAW_IMU.    | IMU       | Monitor IMU details      |
+ * | 104     | MSP_MOTOR       | MOTORS    | Set, or monitor motors.  |
+ * | 105     | MSP_RAW_SENSORS | Range     | Range sensors            |
+ */
 
 #include "rr_ble_mousebot.h"
-
 
 void setup()
 {
   Serial.begin(115200);
 
-  // Create initial 
+  // Create initial
   for (int i = 0; i < 500; i++)
   {
     if (Serial)
@@ -54,18 +53,19 @@ void setup()
 
 void loop()
 {
-  if (Serial.available()) {
-    // Do something here, 
+  if (Serial.available())
+  {
+    // Do something here,
     byte buf[BUFSIZ];
     int msize = Serial.readBytesUntil(TERM_CHAR, buf, BUFSIZ);
 
-    if (msize == 0 || buf[msize -1] != TERM_CHAR) {
-      // TODO return something that says we dont like this
-      // there is a problem.
+    if (msize == 0 || buf[msize - 1] != TERM_CHAR)
+    {
+      org_ryderrobots_ros2_serial_BadRequest bad_request = org_ryderrobots_ros2_serial_BadRequest_init_zero;
+      strcpy(bad_request.title, (void*)"Hello");
+      
     }
 
     // act upon retrieved data.
-
-
   }
 }
