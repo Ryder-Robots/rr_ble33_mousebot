@@ -14,7 +14,7 @@ USB Connection from Raspberry Pi to arduino Nano BLE33
 
 | ID      | CONSTANT        |  SENSOR   | DESCRIPTION              |
 | ------  | --------------  | --------- | ------------------------ |
-| 200     | MSP_SET_RAW_RC. | Motors.   | Sets motors              |
+| 200     | MSP_SET_RAW_RC  | Motors.   | Sets motors              |
 
 
 #### Monitor Commands

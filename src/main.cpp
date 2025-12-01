@@ -53,19 +53,45 @@ void setup()
 
 void loop()
 {
+  uint8_t buffer[BUFSIZ];
+
+  // initilize output buffer.
+  pb_ostream_t ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+  pb_istream_t istream;
+
   if (Serial.available())
   {
     // Do something here,
     byte buf[BUFSIZ];
     int msize = Serial.readBytesUntil(TERM_CHAR, buf, BUFSIZ);
 
+    // Read bytes from input, if they exceed reserved buffer size then 
+    // throw an error.
     if (msize == 0 || buf[msize - 1] != TERM_CHAR)
     {
-      org_ryderrobots_ros2_serial_BadRequest bad_request = org_ryderrobots_ros2_serial_BadRequest_init_zero;
-      strcpy(bad_request.title, (void*)"Hello");
       
+      org_ryderrobots_ros2_serial_BadRequest bad_request = org_ryderrobots_ros2_serial_BadRequest_init_zero;
+      bad_request.etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
+      org_ryderrobots_ros2_serial_Response response = org_ryderrobots_ros2_serial_Response_init_zero;
+      response.op = BAD_REQUEST;
+      response.data.bad_request = bad_request;
+      if (!pb_encode(&ostream, &org_ryderrobots_ros2_serial_Response_msg, &response)) {
+        // not sure what to do if the error message fails.
+      }
+
+      Serial.write(buffer, ostream.bytes_written);
+      return;
     }
 
-    // act upon retrieved data.
+    istream = pb_istream_from_buffer(buf, msize);
+    org_ryderrobots_ros2_serial_Request request = org_ryderrobots_ros2_serial_Request_init_zero;
+    if (!pb_decode(&istream, org_ryderrobots_ros2_serial_Request_fields, &request)) {
+      // throw error
+      return;
+    }
+
+    // Use factory object, C version of one, and start processing the message
+
+    // Write response back to serial port.
   }
 }

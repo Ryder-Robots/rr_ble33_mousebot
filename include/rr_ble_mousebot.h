@@ -30,4 +30,11 @@
 
 #define TERM_CHAR 0x1E
 
+// Operations codes are defined beneath
+#define MSP_SET_RAW_RC 200
+#define MSP_RAW_IMU 102
+#define MSP_MOTOR 104
+#define MSP_RAW_SENSORS 105
+#define BAD_REQUEST 400
+
 #endif // RR_BLE_MOUSEBOT_HPP
