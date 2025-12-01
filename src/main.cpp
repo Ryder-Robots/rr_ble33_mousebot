@@ -51,6 +51,7 @@ void setup()
   }
 }
 
+
 void loop()
 {
   uint8_t buffer[BUFSIZ];
@@ -80,6 +81,9 @@ void loop()
       }
 
       Serial.write(buffer, ostream.bytes_written);
+      Serial.write(TERM_CHAR);
+      // Create small frame delay to packets remain seperate when sent back.
+      delay(10);
       return;
     }
 
@@ -91,6 +95,13 @@ void loop()
     }
 
     // Use factory object, C version of one, and start processing the message
+    switch(request.op) {
+      case MSP_RAW_IMU:
+      break;
+
+      default:
+      // throw unknown message.
+    }
 
     // Write response back to serial port.
   }
