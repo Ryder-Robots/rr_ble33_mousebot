@@ -7,8 +7,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -18,23 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
+#include <badrequest.hpp>
 
-#include <stdint.h>
-#include <cstddef>
-#include <Arduino.h>
-#include "pb_encode.h"
-#include "pb_decode.h"
-#include "rr_serial.pb.h"
+// int bad_request(org_ryderrobots_ros2_serial_ErrorType etype, uint8_t *buf, size_t bsz) {
+//   org_ryderrobots_ros2_serial_BadRequest bad_request =
+//       org_ryderrobots_ros2_serial_BadRequest_init_zero;
+//   bad_request.etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
+//   org_ryderrobots_ros2_serial_Response response =
+//       org_ryderrobots_ros2_serial_Response_init_zero;
+//   response.op = BAD_REQUEST;
+//   response.data.bad_request = bad_request;
 
-#define TERM_CHAR 0x1E
-
-// Operations codes are defined beneath
-#define MSP_SET_RAW_RC 200
-#define MSP_RAW_IMU 102
-#define MSP_MOTOR 104
-#define MSP_RAW_SENSORS 105
-#define BAD_REQUEST 400
-
-#endif // RR_BLE_MOUSEBOT_HPP
+//   pb_ostream_t ostream = pb_ostream_from_buffer(buf, bsz);
+//   pb_encode(&ostream, &org_ryderrobots_ros2_serial_Response_msg, &response);
+//   return 0;
+// }

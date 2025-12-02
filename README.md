@@ -48,6 +48,12 @@ Termination character used in 0x1E, tranditionally RECORD SEPARATOR in ASCII fil
 The maximum length of a request 1200 bytes, internally the code will retreive chunks using a 240 byte buffer, which 
 forums regard as a good limit, all though I was unable to find any official documenation confirming this.
 
+## Tech Rader
+
+| Library           | Purpose                                                              |
++ ----------------- + -------------------------------------------------------------------- +
+| br3ttb/PID@^1.2.1 | Provides PID algorithm, this could be useful for balancing motors.   |
+
 ## References
 
 (platform IO reference)[https://docs.platformio.org/en/latest/boards/nordicnrf52/nano33ble.html]
