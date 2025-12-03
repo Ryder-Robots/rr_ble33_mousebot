@@ -18,28 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef BADREQUEST_HPP
-#define BADREQUEST_HPP
-
-// #include "pb_encode.h"
-// #include "rr_serial.pb.h"
-// #include <stdint.h>
-// #include <stdio.h>
-
-// OP code for bad request
-//  #define BAD_REQUEST 400
+#ifndef RR_BLE_HPP
+#define RR_BLE_HPP
 
 /**
- * @fn bad_request
- * @brief generates bad request with value of status
- * 
- * Generates bad_request with etype, and populates buf.
- * 
- * @param etype error type
- * @param buf buffer to generate
- * @param bsz buffer size
- * @return 0 on success, otherwise non 0.
+ * provides common headers for liberaries.
  */
-// int bad_request(org_ryderrobots_ros2_serial_ErrorType etype, uint8_t *buf, size_t bsz);
 
-#endif
+#include <Arduino.h>
+#include <Arduino_BMI270_BMM150.h>
+#include <cstdint>
+#include <cstring>
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "rr_serial.pb.h"
+
+#define TERM_CHAR 0x1E
+
+namespace rr_ble
+{
+
+    typedef enum _rr_op_code
+    {
+        // monitoring sits in 1xx range
+        MSP_RAW_IMU = 102,
+        MSP_MOTOR = 104,
+        MSP_RAW_SENSORS = 105,
+
+        // Commands sit in the 2xx range.
+        MSP_SET_RAW_RC = 200,
+
+        // Errors included under here
+        BAD_REQUEST = 400,
+    } rr_op_code_t;
+
+}
+
+#endif // RR_BLE_HPP

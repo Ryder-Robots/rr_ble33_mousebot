@@ -7,8 +7,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -18,42 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
+#include <mberror.hpp>
 
-#include <Arduino.h>
+namespace mberror
+{
+    int RRBadRequest::serialize(std::uint8_t *buf, org_ryderrobots_ros2_serial_ErrorType etype)
+    {
+        // clear buffer
+        std::memset(buf, 0, BUFSIZ);
+        org_ryderrobots_ros2_serial_BadRequest bad_request =
+            org_ryderrobots_ros2_serial_BadRequest_init_zero;
+        bad_request.etype = etype;
+        org_ryderrobots_ros2_serial_Response response =
+            org_ryderrobots_ros2_serial_Response_init_zero;
+        response.op = op_code_;
+        response.data.bad_request = bad_request;
 
-
-#include "pb_encode.h"
-#include "pb_decode.h"
-#include "rr_serial.pb.h"
-
-// #define TERM_CHAR 0x1E
-
-namespace rr_ble {
-
-enum {
-    // monitoring sits in 1xx range
-    MSP_RAW_IMU = 102,
-    MSP_MOTOR = 104,
-    MSP_RAW_SENSORS = 105,
-
-    // Commands sit in the 2xx range.
-    MSP_SET_RAW_RC = 200,
-
-    // Errors included under here
-    BAD_REQUEST = 400,
-};
-
+        pb_ostream_t ostream = pb_ostream_from_buffer(buf, sizeof(buf));
+        pb_encode(&ostream, &org_ryderrobots_ros2_serial_Response_msg, &response);
+        return 0;
+    }
 }
-
-// // Operations codes are defined beneath
-// #define  200
-// #define  102
-// #define  104
-// #define  105
-
-#endif // RR_BLE_MOUSEBOT_HPP
