@@ -21,6 +21,7 @@
 #ifndef RR_BUFFER_HPP
 #define RR_BUFFER_HPP
 
+// JSF Rule 40 [web:79], use cstring
 #include <cstring>
 #include <rr_ble.hpp>
 
@@ -37,7 +38,7 @@ namespace rr_buffer
     class RRBuffer
     {
     private:
-        std::int8_t buf_[BUFSIZ];
+        std::uint8_t buf_[BUFSIZ];
 
         /**
          * Internal constructor to ensure that this remaines a singlton.

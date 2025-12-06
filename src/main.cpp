@@ -36,6 +36,11 @@
 
 #include "rr_ble_mousebot.h"
 
+// reserve memory for protobuf, and error messages.
+// keep as much memory reserved as possible, so that the chip stays stable.
+int result;
+mberror::RRBadRequest rr_bad_request;
+
 void setup()
 {
   // reserve memory early to stop potential issues later
@@ -56,12 +61,31 @@ void loop()
     return;
   }
 
+  // get buffer instance, and clear any junk away.
   rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
+  buf.clear();
+  pb_istream_t istream;
+  org_ryderrobots_ros2_serial_Response decoded_response;
+  org_ryderrobots_ros2_serial_ErrorType etype;
 
   // Read input.
   size_t bytes_read = Serial.readBytesUntil(TERM_CHAR, buf.buffer(), BUFSIZ);
+  if (bytes_read == BUFSIZ && buf.buffer()[BUFSIZ - 1] != TERM_CHAR)
+  {
+    // return back error code too big
+    etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
+    decoded_response = org_ryderrobots_ros2_serial_Response_init_zero;
+    result = rr_bad_request.serialize(buf.buffer(), etype);
+    istream = pb_istream_from_buffer(buf.buffer(), bytes_read);
+    if (result > 0)
+    {
+      Serial.write(buf.buffer(), result);
+      Serial.write(TERM_CHAR);
+    }
+    delay(DELAY_COEF);
+    return;
+  }
 
   // This must be the last line of the loop.
-  buf.clear();
   delay(DELAY_COEF);
 }

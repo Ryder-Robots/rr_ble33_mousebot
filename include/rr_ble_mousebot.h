@@ -25,7 +25,7 @@
 #define RR_BLE_MOUSEBOT_HPP
 
 #include <rr_ble.hpp>
-#include <mbed_error.h>
+#include <mberror.hpp>
 #include <rr_buffer.hpp>
 
 #endif // RR_BLE_MOUSEBOT_HPP

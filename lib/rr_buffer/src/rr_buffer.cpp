@@ -24,12 +24,17 @@ namespace rr_buffer
 {
     void RRBuffer::clear()
     {
+        // some compilers will optimise away repeated calls to memset
+        // the volatile keyword should stop that
+        volatile bool cleared = false;
+        (void)cleared;
         std::memset(buf_, 0, BUFSIZ);
+        cleared = true; 
     }
 
     std::uint8_t *RRBuffer::buffer()
     {
-        return reinterpret_cast<std::uint8_t *>(buf_);
+        return buf_;
     }
 
     /**
