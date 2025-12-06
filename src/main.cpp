@@ -36,10 +36,10 @@
 
 #include "rr_ble_mousebot.h"
 
-// reserve memory for protobuf, and error messages.
-// keep as much memory reserved as possible, so that the chip stays stable.
-int result;
-mberror::RRBadRequest rr_bad_request;
+const unsigned long LOOP_INTERVAL = 10;
+
+pb_ostream_t ostream;
+pb_istream_t istream;
 
 void setup()
 {
@@ -47,45 +47,62 @@ void setup()
   rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
   (void)buf;
 
+  ostream = pb_ostream_from_buffer(buf.buffer(), BUFSIZ);
+  istream = pb_istream_from_buffer(buf.buffer(), BUFSIZ);
+
   // start serial driver.
   Serial.begin(BAUD_RATE);
+
+  // create watchdog
+  wdt::Wdt::get_instance().init();
 }
 
 // Called from within a loop, it will block while data is not available.
 // but does not consider processing time.
 void loop()
 {
+  wdt::Wdt::get_instance().reset();
+
+  static unsigned long last_serial = 0;
+  if (millis() - last_serial < 5)
+    return;
+  last_serial = millis();
+
   if (Serial.available() == 0)
   {
-    delay(DELAY_COEF);
     return;
   }
 
   // get buffer instance, and clear any junk away.
-  rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
-  buf.clear();
-  pb_istream_t istream;
+  auto &buf = rr_buffer::RRBuffer::get_instance();
   org_ryderrobots_ros2_serial_Response decoded_response;
   org_ryderrobots_ros2_serial_ErrorType etype;
 
   // Read input.
   size_t bytes_read = Serial.readBytesUntil(TERM_CHAR, buf.buffer(), BUFSIZ);
+  if (bytes_read == 0)
+  {
+    buf.clear();
+    return;
+  }
   if (bytes_read == BUFSIZ && buf.buffer()[BUFSIZ - 1] != TERM_CHAR)
   {
     // return back error code too big
+    mberror::RRBadRequest rr_bad_request(ostream);
     etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
     decoded_response = org_ryderrobots_ros2_serial_Response_init_zero;
-    result = rr_bad_request.serialize(buf.buffer(), etype);
-    istream = pb_istream_from_buffer(buf.buffer(), bytes_read);
+    size_t result = rr_bad_request.serialize(etype);
     if (result > 0)
     {
       Serial.write(buf.buffer(), result);
       Serial.write(TERM_CHAR);
     }
-    delay(DELAY_COEF);
+    buf.clear();
     return;
   }
 
+  // TODO: handle operation codes after evaluation
+
   // This must be the last line of the loop.
-  delay(DELAY_COEF);
+  buf.clear();
 }

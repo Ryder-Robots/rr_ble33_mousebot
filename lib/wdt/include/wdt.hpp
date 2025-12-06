@@ -18,15 +18,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
+#ifndef WDT_HPP
+#define WDT_HPP
 
-#include <rr_ble.hpp>
-#include <mberror.hpp>
-#include <rr_buffer.hpp>
-#include <wdt.hpp>
+#include <nrf.h>
+#include <Arduino.h>
 
-#endif // RR_BLE_MOUSEBOT_HPP
+namespace wdt
+{
+
+    /**
+     * @class wdt
+     * @brief watchdog functionality
+     *
+     * Connects to BLE internal watchdog, which is nRF52840.
+     */
+    class Wdt
+    {
+
+    private:
+        size_t timeout_secs_ = 5;
+
+        Wdt()
+        {
+            init();
+        }
+
+    public:
+        Wdt(const Wdt &) = delete;
+
+        Wdt &operator=(const Wdt &) = delete;
+
+        static Wdt & get_instance();
+
+        /**
+         * @fn init
+         * @brief initlize RR
+         */
+        void init();
+
+        /**
+         * @fn reset
+         * @brief Feed RR[0]
+         */
+        void reset();
+    };
+}
+
+#endif // WDT_HPP

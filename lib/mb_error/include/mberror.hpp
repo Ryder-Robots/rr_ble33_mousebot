@@ -34,8 +34,9 @@ namespace mberror {
     class RRBlError {
         public:
 
-        explicit RRBlError(rr_ble::rr_op_code_t op_code):
-        op_code_(op_code)
+        explicit RRBlError(rr_ble::rr_op_code_t op_code, pb_ostream_t ostream):
+        op_code_(op_code),
+        ostream_(ostream)
         {}
 
         ~RRBlError() = default;
@@ -49,18 +50,19 @@ namespace mberror {
          * @param status status to describe error.
          * @return on success return zero, otherwise return non-zero value.
          */
-        virtual int serialize(std::uint8_t* buf, org_ryderrobots_ros2_serial_ErrorType status) = 0;
+        virtual int serialize(org_ryderrobots_ros2_serial_ErrorType status) = 0;
         
         
         protected:
         rr_ble::rr_op_code_t op_code_;
+        pb_ostream_t ostream_;
     };
 
     class RRBadRequest : public RRBlError {
         public:
-        explicit RRBadRequest(): RRBlError(rr_ble::rr_op_code_t::BAD_REQUEST) {}
+        explicit RRBadRequest(pb_ostream_t ostream): RRBlError(rr_ble::rr_op_code_t::BAD_REQUEST, ostream) {}
 
-        int serialize(std::uint8_t* buf, org_ryderrobots_ros2_serial_ErrorType status) override;
+        int serialize(org_ryderrobots_ros2_serial_ErrorType status) override;
     };
 }
 

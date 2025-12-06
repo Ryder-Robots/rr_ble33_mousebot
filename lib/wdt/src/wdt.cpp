@@ -18,15 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
-
-#include <rr_ble.hpp>
-#include <mberror.hpp>
-#include <rr_buffer.hpp>
 #include <wdt.hpp>
 
-#endif // RR_BLE_MOUSEBOT_HPP
+namespace wdt
+{
+    /**
+     * These functions are pretty spectic chipsets that support them, such as Arduino Nano BLE 33.
+     */
+    void Wdt::init()
+    {
+        // 5 second timeout
+        NRF_WDT->CRV = 32768 * timeout_secs_; // 32768 * 5
+        NRF_WDT->RREN = WDT_RREN_RR0_Msk;     // Enable RR[0]
+        NRF_WDT->CONFIG = ((WDT_CONFIG_SLEEP_Run << WDT_CONFIG_SLEEP_Pos) | (WDT_CONFIG_HALT_Pause << WDT_CONFIG_HALT_Pos));
+        NRF_WDT->TASKS_START = 1;
+    }
+
+    void Wdt::reset()
+    {
+        NRF_WDT->RR[0] = WDT_RR_RR_Reload;
+    }
+
+    Wdt &Wdt::get_instance()
+    {
+        static Wdt instance;
+        return instance;
+    }
+}
