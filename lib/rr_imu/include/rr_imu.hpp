@@ -18,14 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
+#ifndef RR_IMU_HPP
+#define RR_IMU_HPP
 
-#include <rr_ble.hpp>
-#include <mbed_error.h>
-#include <rr_buffer.hpp>
+namespace rr_imu {
+    
+    /**
+     * @class RRImu
+     * @brief responds to IMU op codes.
+     */
+    class RRImu {
 
-#endif // RR_BLE_MOUSEBOT_HPP
+    };
+}
+
+#endif

@@ -18,14 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
-
-#include <rr_ble.hpp>
-#include <mbed_error.h>
 #include <rr_buffer.hpp>
 
-#endif // RR_BLE_MOUSEBOT_HPP
+namespace rr_buffer
+{
+    void RRBuffer::clear()
+    {
+        std::memset(buf_, 0, BUFSIZ);
+    }
+
+    std::uint8_t *RRBuffer::buffer()
+    {
+        return reinterpret_cast<std::uint8_t *>(buf_);
+    }
+
+    /**
+     * return static reference to buffer object.
+     */
+    RRBuffer& RRBuffer::get_instance()
+    {
+        static RRBuffer instance;
+        return instance;
+    }
+}

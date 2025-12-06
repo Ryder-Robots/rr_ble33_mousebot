@@ -38,13 +38,30 @@
 
 void setup()
 {
+  // reserve memory early to stop potential issues later
+  rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
+  (void)buf;
+
   // start serial driver.
-  // Serial.begin(115200);
+  Serial.begin(BAUD_RATE);
 }
 
-
+// Called from within a loop, it will block while data is not available.
+// but does not consider processing time.
 void loop()
 {
+  if (Serial.available() == 0)
+  {
+    delay(DELAY_COEF);
+    return;
+  }
+
+  rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
+
+  // Read input.
+  size_t bytes_read = Serial.readBytesUntil(TERM_CHAR, buf.buffer(), BUFSIZ);
+
+  // This must be the last line of the loop.
+  buf.clear();
+  delay(DELAY_COEF);
 }
-
-

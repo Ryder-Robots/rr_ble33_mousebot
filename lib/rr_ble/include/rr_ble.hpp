@@ -34,6 +34,8 @@
 #include "rr_serial.pb.h"
 
 #define TERM_CHAR 0x1E
+#define DELAY_COEF 50
+#define BAUD_RATE 115200
 
 namespace rr_ble
 {
