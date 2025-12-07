@@ -22,11 +22,33 @@
 
 namespace mb_operations
 {
-    void MBOperationsFactory::init() {}
-
-    MbOperationHandler * MBOperationsFactory::get_op_handler(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Status &status)
+    void MBOperationsFactory::init()
     {
-        
+        imu_op_hdl_.init();
+    }
+
+    MbOperationHandler *MBOperationsFactory::get_op_handler(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Status &status)
+    {
+        RRImuOpHandler *hdl = nullptr;
+        status = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_UNKNOWN;
+        switch (req.op)
+        {
+        case rr_ble::MSP_RAW_IMU:
+            hdl = &imu_op_hdl_;
+            break;
+
+        default:
+            status = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_UNKNOWN;
+            return nullptr;
+        }
+
+        status = hdl->status();
+        if (status != org_ryderrobots_ros2_serial_Status_READY)
+        {
+            return nullptr;
+        }
+        status = org_ryderrobots_ros2_serial_Status_READY;
+        return hdl;
     }
 
 }

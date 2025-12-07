@@ -22,6 +22,7 @@
 #define MB_OP_FACTORY_HPP
 
 #include <mb_operations.hpp>
+#include <rr_imu.hpp>
 
 namespace mb_operations
 {
@@ -38,6 +39,13 @@ namespace mb_operations
          * @brief performs initlization, including op_handlers
          */
         void init();
+
+        MBOperationsFactory() = default;
+
+        /**
+         * handle construction and deconstruction in code, to protect against memory errors.
+         */
+        ~MBOperationsFactory() = default;
 
         /**
          * @fn get_op_handler
@@ -56,6 +64,9 @@ namespace mb_operations
          * @param status one of the following statuses UNKNOWN, READY, NOT_AVAILABLE, or FAILURE
          */
         MbOperationHandler *get_op_handler(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Status &status);
+
+        private:
+            RRImuOpHandler imu_op_hdl_; 
     };
 }
 
