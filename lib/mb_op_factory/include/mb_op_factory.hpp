@@ -18,13 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace mb_operations {
+#ifndef MB_OP_FACTORY_HPP
+#define MB_OP_FACTORY_HPP
+
+#include <mb_operations.hpp>
+
+namespace mb_operations
+{
 
     /**
      * @class MBOperationsFactory
-     * @brief 
+     * @brief
      */
-    class MBOperationsFactory {
+    class MBOperationsFactory
+    {
+    public:
+        /**
+         * @fn init
+         * @brief performs initlization, including op_handlers
+         */
+        void init();
 
+        /**
+         * @fn get_op_handler
+         * @brief if supported, return MbOperationHandler.
+         *
+         * Attempts to return correct operation handler. and sets status.
+         * Statuses can be one of the following:
+         *
+         * UNKNOWN - operation code is unknown to factory. (null pointer is returned)
+         * READY -  operation handler is ready and returned
+         * NOT_AVAILABLE - operation handler may be still initilizing, or currently processing another request.
+         * FAILURE - operation handler exists, but has experienced some sort of failure.
+         *
+         * @return pointer to operation handler if available, otherwise null pointer.
+         * @param req deserialized request
+         * @param status one of the following statuses UNKNOWN, READY, NOT_AVAILABLE, or FAILURE
+         */
+        MbOperationHandler *get_op_handler(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Status &status);
     };
 }
+
+#endif // MB_OP_FACTORY_HPP

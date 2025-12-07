@@ -38,16 +38,15 @@
 
 const unsigned long LOOP_INTERVAL = 10;
 
-pb_ostream_t ostream;
-pb_istream_t istream;
+mb_operations::MBOperationsFactory fact;
 
 /**
  * Read bytes up to TERM_CHAR, or when -1 is returned.
- * 
+ *
  * returns the number of bytes.
- * 
+ *
  * ibuf() from buffer singleton will be populated with one of these.
- * 
+ *
  * all bytes up to return value, with last value as TERM_CHAR
  * all bytes up to return value, with last value as -1
  * all bytes up to return value, where ibuf = BUFSIZ
@@ -63,11 +62,13 @@ size_t read_serial()
     {
       c = Serial.read();
       buf.ibuf_ptr()[r] = static_cast<std::uint8_t>(c);
-      if (c < 0 ||  static_cast<std::uint8_t>(c) == TERM_CHAR) {
+      if (c < 0 || static_cast<std::uint8_t>(c) == TERM_CHAR)
+      {
         break;
       }
 
-      if (!Serial.available()) {
+      if (!Serial.available())
+      {
         break;
       }
     }
@@ -81,8 +82,7 @@ void setup()
   rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
   (void)buf;
 
-  ostream = pb_ostream_from_buffer(buf.obuf_ptr(), BUFSIZ);
-  istream = pb_istream_from_buffer(buf.ibuf_ptr(), BUFSIZ);
+  fact.init();
 
   // start serial driver.
   Serial.begin(BAUD_RATE);
@@ -108,6 +108,8 @@ void loop()
   }
   // read input
   auto &buf = rr_buffer::RRBuffer::get_instance();
+  auto ostream = pb_ostream_from_buffer(buf.obuf_ptr(), BUFSIZ);
+
   size_t bytes_read = read_serial();
   if (bytes_read == 0)
   {
@@ -115,14 +117,12 @@ void loop()
     return;
   }
 
-  org_ryderrobots_ros2_serial_Response decoded_response;
   org_ryderrobots_ros2_serial_ErrorType etype;
   if (bytes_read == BUFSIZ && buf.ibuf_ptr()[BUFSIZ - 1] != TERM_CHAR)
   {
     // return back error code too big
     mberror::RRBadRequest rr_bad_request(ostream);
     etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
-    decoded_response = org_ryderrobots_ros2_serial_Response_init_zero;
     size_t result = rr_bad_request.serialize(etype);
     if (result > 0)
     {
@@ -133,7 +133,56 @@ void loop()
     return;
   }
 
-  // TODO: handle operation codes after evaluation
+  auto istream = pb_istream_from_buffer(buf.ibuf_ptr(), bytes_read);
+  org_ryderrobots_ros2_serial_Request req = org_ryderrobots_ros2_serial_Request_init_zero;
+  if (!pb_decode(&istream, org_ryderrobots_ros2_serial_Request_fields, &req))
+  {
+    // operation can not be deserialized.
+    mberror::RRBadRequest rr_bad_request(ostream);
+    etype = org_ryderrobots_ros2_serial_ErrorType_ET_INVALID_REQUEST;
+    size_t result = rr_bad_request.serialize(etype);
+    if (result > 0)
+    {
+      Serial.write(buf.obuf_ptr(), result);
+      Serial.write(TERM_CHAR);
+    }
+    buf.clear();
+    return;
+  }
+
+  auto status = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_UNKNOWN;
+  mb_operations::MbOperationHandler *handler = fact.get_op_handler(req, status);
+
+  if (status == org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_READY)
+  {
+    if (!pb_encode(&ostream, org_ryderrobots_ros2_serial_Response_fields, &handler->perform_op(req)))
+    {
+      // operation can not be deserialized.
+      mberror::RRBadRequest rr_bad_request(ostream);
+      etype = org_ryderrobots_ros2_serial_ErrorType_ET_UNKNOWN;
+      size_t result = rr_bad_request.serialize(etype);
+      if (result > 0)
+      {
+        Serial.write(buf.obuf_ptr(), result);
+        Serial.write(TERM_CHAR);
+      }
+      buf.clear();
+      return;
+    }
+    Serial.write(buf.obuf_ptr(), ostream.bytes_written);
+    Serial.write(TERM_CHAR);
+  }
+  else
+  {
+    mberror::RRBadRequest rr_bad_request(ostream);
+    etype = org_ryderrobots_ros2_serial_ErrorType_ET_SERIAL_FAILURE;
+    size_t result = rr_bad_request.serialize(etype);
+    if (result > 0)
+    {
+      Serial.write(buf.obuf_ptr(), result);
+      Serial.write(TERM_CHAR);
+    }
+  }
 
   // This must be the last line of the loop.
   buf.clear();

@@ -18,16 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * Base header file, that applies to all libraries
- */
-#ifndef RR_BLE_MOUSEBOT_HPP
-#define RR_BLE_MOUSEBOT_HPP
-
-#include <rr_ble.hpp>
-#include <mberror.hpp>
-#include <rr_buffer.hpp>
-#include <wdt.hpp>
 #include <mb_op_factory.hpp>
 
-#endif // RR_BLE_MOUSEBOT_HPP
+namespace mb_operations
+{
+    void MBOperationsFactory::init() {}
+
+    MbOperationHandler * MBOperationsFactory::get_op_handler(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Status &status)
+    {
+        
+    }
+
+}
