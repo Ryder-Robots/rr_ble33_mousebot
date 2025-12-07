@@ -41,14 +41,48 @@ const unsigned long LOOP_INTERVAL = 10;
 pb_ostream_t ostream;
 pb_istream_t istream;
 
+/**
+ * Read bytes up to TERM_CHAR, or when -1 is returned.
+ * 
+ * returns the number of bytes.
+ * 
+ * ibuf() from buffer singleton will be populated with one of these.
+ * 
+ * all bytes up to return value, with last value as TERM_CHAR
+ * all bytes up to return value, with last value as -1
+ * all bytes up to return value, where ibuf = BUFSIZ
+ */
+size_t read_serial()
+{
+  size_t r = 0;
+  if (Serial.available())
+  {
+    int c;
+    auto &buf = rr_buffer::RRBuffer::get_instance();
+    for (; r < BUFSIZ; r++)
+    {
+      c = Serial.read();
+      buf.ibuf_ptr()[r] = static_cast<std::uint8_t>(c);
+      if (c < 0 ||  static_cast<std::uint8_t>(c) == TERM_CHAR) {
+        break;
+      }
+
+      if (!Serial.available()) {
+        break;
+      }
+    }
+  }
+  return r;
+}
+
 void setup()
 {
   // reserve memory early to stop potential issues later
   rr_buffer::RRBuffer &buf = rr_buffer::RRBuffer::get_instance();
   (void)buf;
 
-  ostream = pb_ostream_from_buffer(buf.buffer(), BUFSIZ);
-  istream = pb_istream_from_buffer(buf.buffer(), BUFSIZ);
+  ostream = pb_ostream_from_buffer(buf.obuf_ptr(), BUFSIZ);
+  istream = pb_istream_from_buffer(buf.ibuf_ptr(), BUFSIZ);
 
   // start serial driver.
   Serial.begin(BAUD_RATE);
@@ -72,20 +106,18 @@ void loop()
   {
     return;
   }
-
-  // get buffer instance, and clear any junk away.
+  // read input
   auto &buf = rr_buffer::RRBuffer::get_instance();
-  org_ryderrobots_ros2_serial_Response decoded_response;
-  org_ryderrobots_ros2_serial_ErrorType etype;
-
-  // Read input.
-  size_t bytes_read = Serial.readBytesUntil(TERM_CHAR, buf.buffer(), BUFSIZ);
+  size_t bytes_read = read_serial();
   if (bytes_read == 0)
   {
     buf.clear();
     return;
   }
-  if (bytes_read == BUFSIZ && buf.buffer()[BUFSIZ - 1] != TERM_CHAR)
+
+  org_ryderrobots_ros2_serial_Response decoded_response;
+  org_ryderrobots_ros2_serial_ErrorType etype;
+  if (bytes_read == BUFSIZ && buf.ibuf_ptr()[BUFSIZ - 1] != TERM_CHAR)
   {
     // return back error code too big
     mberror::RRBadRequest rr_bad_request(ostream);
@@ -94,7 +126,7 @@ void loop()
     size_t result = rr_bad_request.serialize(etype);
     if (result > 0)
     {
-      Serial.write(buf.buffer(), result);
+      Serial.write(buf.obuf_ptr(), result);
       Serial.write(TERM_CHAR);
     }
     buf.clear();

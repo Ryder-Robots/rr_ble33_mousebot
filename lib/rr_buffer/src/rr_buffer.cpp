@@ -28,19 +28,25 @@ namespace rr_buffer
         // the volatile keyword should stop that
         volatile bool cleared = false;
         (void)cleared;
-        std::memset(buf_, 0, BUFSIZ);
-        cleared = true; 
+        std::memset(ibuf_, 0, BUFSIZ);
+        std::memset(obuf_, 0, BUFSIZ);
+        cleared = true;
     }
 
-    std::uint8_t *RRBuffer::buffer()
+    std::uint8_t *RRBuffer::ibuf_ptr()
     {
-        return buf_;
+        return ibuf_;
+    }
+
+    std::uint8_t *RRBuffer::obuf_ptr()
+    {
+        return obuf_;
     }
 
     /**
      * return static reference to buffer object.
      */
-    RRBuffer& RRBuffer::get_instance()
+    RRBuffer &RRBuffer::get_instance()
     {
         static RRBuffer instance;
         return instance;

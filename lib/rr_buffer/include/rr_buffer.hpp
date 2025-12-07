@@ -38,7 +38,11 @@ namespace rr_buffer
     class RRBuffer
     {
     private:
-        std::uint8_t buf_[BUFSIZ];
+        // input/read buffer
+        std::uint8_t ibuf_[BUFSIZ];
+
+        // output/write buffer
+        std::uint8_t obuf_[BUFSIZ];
 
         /**
          * Internal constructor to ensure that this remaines a singlton.
@@ -60,11 +64,16 @@ namespace rr_buffer
          */
         void clear();
 
+
+        // TODO inbound and outbound buffer should be created to avoid
+        // corruption.
         /**
          * @fn buffer
          * @brief returns buffer that can be used for Serial functions.
          */
-        std::uint8_t *buffer();
+        std::uint8_t *ibuf_ptr();
+
+        std::uint8_t *obuf_ptr();
 
 
         /**
