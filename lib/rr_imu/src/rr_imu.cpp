@@ -35,7 +35,8 @@ namespace mb_operations
         }
     }
 
-    const org_ryderrobots_ros2_serial_Status RRImuOpHandler::status() {
+    const org_ryderrobots_ros2_serial_Status RRImuOpHandler::status()
+    {
         return status_;
     }
 
@@ -55,24 +56,14 @@ namespace mb_operations
         *q_z = cy * cp * sr - sy * sp * cr;
     }
 
-    const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::perform_op(const org_ryderrobots_ros2_serial_Request &req)
+    /*
+     * perform monitor request
+     */
+    const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::monitor(const org_ryderrobots_ros2_serial_Request &req)
     {
         org_ryderrobots_ros2_serial_Response response =
             org_ryderrobots_ros2_serial_Response_init_zero;
         response.op = rr_ble::rr_op_code_t::MSP_RAW_IMU;
-
-        // failure condition. set error
-        if (!(IMU.gyroscopeAvailable() && IMU.accelerationAvailable()))
-        {
-            status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_NOT_AVAILABLE;
-            org_ryderrobots_ros2_serial_BadRequest bad_request =
-                org_ryderrobots_ros2_serial_BadRequest_init_zero;
-            bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_SERVICE_UNAVAILABLE;
-            org_ryderrobots_ros2_serial_Response response =
-                org_ryderrobots_ros2_serial_Response_init_zero;    
-            response.data.bad_request = bad_request;
-            return response;
-        }
 
         float gx, gy, gz, ax, ay, az, qx, qy, qz, qw;
         IMU.readGyroscope(gx, gy, gz);
@@ -102,6 +93,46 @@ namespace mb_operations
         payload.has_linear_acceleration = true;
         response.data.msp_raw_imu = payload;
 
+        return response;
+    }
+
+    const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::perform_op(const org_ryderrobots_ros2_serial_Request &req)
+    {
+        org_ryderrobots_ros2_serial_Response response =
+            org_ryderrobots_ros2_serial_Response_init_zero;
+        response.op = rr_ble::rr_op_code_t::MSP_RAW_IMU;
+
+        // failure condition. set error
+        if (!(IMU.gyroscopeAvailable() && IMU.accelerationAvailable()))
+        {
+            status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_NOT_AVAILABLE;
+            org_ryderrobots_ros2_serial_BadRequest bad_request =
+                org_ryderrobots_ros2_serial_BadRequest_init_zero;
+            bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_SERVICE_UNAVAILABLE;
+            org_ryderrobots_ros2_serial_Response response =
+                org_ryderrobots_ros2_serial_Response_init_zero;
+            response.data.bad_request = bad_request;
+            return response;
+        }
+
+        // several actions may be supported by a specific sensor, so always
+        // validate, and check which action is required.
+        switch (req.which_data)
+        {
+        // send request back
+        case org_ryderrobots_ros2_serial_Monitor_is_request_tag:
+            response = monitor(req);
+            break;
+
+        // error condition, unsupported request.
+        default:
+            org_ryderrobots_ros2_serial_BadRequest bad_request =
+                org_ryderrobots_ros2_serial_BadRequest_init_zero;
+            bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_UNKNOWN_OPERATION;
+            org_ryderrobots_ros2_serial_Response response =
+                org_ryderrobots_ros2_serial_Response_init_zero;
+            response.data.bad_request = bad_request;
+        }
         return response;
     }
 }

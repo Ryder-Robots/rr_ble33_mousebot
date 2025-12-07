@@ -53,6 +53,8 @@ namespace mb_operations
         void euler_to_quaternion(float roll, float pitch, float yaw,
                              float *q_w, float *q_x, float *q_y, float *q_z);
 
+        const org_ryderrobots_ros2_serial_Response & monitor(const org_ryderrobots_ros2_serial_Request &req);
+
     public:
         RRImuOpHandler() = default;
         ~RRImuOpHandler() = default;
