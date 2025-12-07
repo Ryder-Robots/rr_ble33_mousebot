@@ -18,17 +18,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+/**
+ * CAVIET: Converence is not yet implemented.
+ */
+
 #ifndef RR_IMU_HPP
 #define RR_IMU_HPP
 
-namespace rr_imu {
-    
+#include "Arduino.h"
+#include "Arduino_BMI270_BMM150.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "rr_serial.pb.h"
+#include "math.h"
+#include <mb_operations.hpp>
+#include <MadgwickAHRS.h>
+
+namespace mb_operations
+{
+
     /**
      * @class RRImu
      * @brief responds to IMU op codes.
      */
-    class RRImu {
+    class RRImuOpHandler : public mb_operations::MbOperationHandler
+    {
+    private:
+        Madgwick filter_;
 
+        // private methods
+        void euler_to_quaternion(float roll, float pitch, float yaw,
+                             float *q_w, float *q_x, float *q_y, float *q_z);
+
+    public:
+        RRImuOpHandler() = default;
+        ~RRImuOpHandler() = default;
+
+        /**
+         * @fn init
+         * @brief performs inilization of IMU, and Accelometer.
+         */
+        void init() override;
+
+        /**
+         * @fn perform_op
+         * @brief set IMU data in accordance to org_ryderrobots_ros2_serial_MspRawImu
+         *
+         * org_ryderrobots_ros2_serial_Quaternion.x, y, and z correspond to IMU.readGyroscope(x, y, z)
+         *
+         *
+         * Note this assumes that the mousebot is orientated facing 1,0,0,0 of the maze or left most corner, where
+         * IMU is oritenated with 'USB plug' facing at bottom of robot, and Y is travesing is length of mousebot travesing
+         * from top if of chip in a forward direction.
+         *
+         * Accelometer, and gyroscope data is used to compute x,y,z, and w with Arduinos MadgwickAHRS.h filter objects.
+         *
+         *      y
+         *   +-----+
+         * x |     | x
+         *   | USB |
+         *   +-----+
+         *      y
+         * For z value this should always be assumed to be '0' as mousebot will not perform any incline raises while
+         * solving a standard maze.
+         */
+        const org_ryderrobots_ros2_serial_Response &perform_op(const org_ryderrobots_ros2_serial_Request &req) override;
     };
 }
 

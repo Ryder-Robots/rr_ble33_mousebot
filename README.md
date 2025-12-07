@@ -54,6 +54,13 @@ forums regard as a good limit, all though I was unable to find any official docu
 + ----------------- + -------------------------------------------------------------------- +
 | br3ttb/PID@^1.2.1 | Provides PID algorithm, this could be useful for balancing motors.   |
 
+
+## ROADMAP
+
+* Implement Converence for IMU.
+
+in order to make this code operational.
+
 ## References
 
 (platform IO reference)[https://docs.platformio.org/en/latest/boards/nordicnrf52/nano33ble.html]
