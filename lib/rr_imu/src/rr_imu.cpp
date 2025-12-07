@@ -27,11 +27,20 @@ namespace mb_operations
         filter_.begin(100.0f);
         IMU.begin();
 
-        // TODO do some checking here and may be throw an error if things go heywire.
+        // allow a small delay for services to become active.
+        delay(100);
+        if (IMU.accelerationAvailable() && IMU.gyroscopeAvailable())
+        {
+            status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_READY;
+        }
+    }
+
+    const org_ryderrobots_ros2_serial_Status RRImuOpHandler::status() {
+        return status_;
     }
 
     void RRImuOpHandler::euler_to_quaternion(float roll, float pitch, float yaw,
-                             float *q_w, float *q_x, float *q_y, float *q_z)
+                                             float *q_w, float *q_x, float *q_y, float *q_z)
     {
         float cr = cosf(roll * 0.5f);
         float sr = sinf(roll * 0.5f);
@@ -48,16 +57,27 @@ namespace mb_operations
 
     const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::perform_op(const org_ryderrobots_ros2_serial_Request &req)
     {
+        org_ryderrobots_ros2_serial_Response response =
+            org_ryderrobots_ros2_serial_Response_init_zero;
+        response.op = rr_ble::rr_op_code_t::MSP_RAW_IMU;
+
+        // failure condition. set error
         if (!(IMU.gyroscopeAvailable() && IMU.accelerationAvailable()))
         {
-            // TODO: set error condition.
+            status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_NOT_AVAILABLE;
+            org_ryderrobots_ros2_serial_BadRequest bad_request =
+                org_ryderrobots_ros2_serial_BadRequest_init_zero;
+            bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_SERVICE_UNAVAILABLE;
+            org_ryderrobots_ros2_serial_Response response =
+                org_ryderrobots_ros2_serial_Response_init_zero;    
+            response.data.bad_request = bad_request;
+            return response;
         }
 
         float gx, gy, gz, ax, ay, az, qx, qy, qz, qw;
         IMU.readGyroscope(gx, gy, gz);
         IMU.readAcceleration(ax, ay, az);
         filter_.updateIMU(gx, gy, gz, ax, ay, az);
-        
 
         org_ryderrobots_ros2_serial_MspRawImu payload = org_ryderrobots_ros2_serial_MspRawImu_init_zero;
 
@@ -67,6 +87,7 @@ namespace mb_operations
         payload.orientation.y = qy;
         payload.orientation.z = qz;
         payload.orientation.w = qw;
+        payload.has_orientation = true;
 
         // angular velocity
         payload.angular_velocity.x = gx;
@@ -74,10 +95,13 @@ namespace mb_operations
         payload.angular_velocity.z = gz;
         payload.has_angular_velocity = true;
 
-        // angular acceleration.
+        // linera acceleration.
         payload.linear_acceleration.x = ax;
         payload.linear_acceleration.y = ay;
         payload.linear_acceleration.z = az;
         payload.has_linear_acceleration = true;
+        response.data.msp_raw_imu = payload;
+
+        return response;
     }
 }

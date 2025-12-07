@@ -19,20 +19,21 @@
 // SOFTWARE.
 
 /**
- * CAVIET: Converence is not yet implemented.
+ * CAVEAT: Covariance is not yet implemented.
  */
 
 #ifndef RR_IMU_HPP
 #define RR_IMU_HPP
 
 #include "Arduino.h"
-#include "Arduino_BMI270_BMM150.h"
+#include <Arduino_LSM9DS1.h>
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "rr_serial.pb.h"
 #include "math.h"
 #include <mb_operations.hpp>
 #include <MadgwickAHRS.h>
+#include <rr_ble.hpp>
 
 namespace mb_operations
 {
@@ -46,6 +47,8 @@ namespace mb_operations
     private:
         Madgwick filter_;
 
+        org_ryderrobots_ros2_serial_Status status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_NOT_AVAILABLE;
+
         // private methods
         void euler_to_quaternion(float roll, float pitch, float yaw,
                              float *q_w, float *q_x, float *q_y, float *q_z);
@@ -53,6 +56,12 @@ namespace mb_operations
     public:
         RRImuOpHandler() = default;
         ~RRImuOpHandler() = default;
+
+        /**
+         * @fn status
+         * @brief reported status to be used for feature list.
+         */
+        const org_ryderrobots_ros2_serial_Status status() override;
 
         /**
          * @fn init

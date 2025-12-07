@@ -69,6 +69,15 @@ namespace mb_operations {
          * state.
          */
         virtual const org_ryderrobots_ros2_serial_Response & perform_op(const org_ryderrobots_ros2_serial_Request & req) = 0;
+
+        /**
+         * @fn status
+         * @brief reports back sensor status.
+         * 
+         * For sensors that are supported by the micro-controller, statuses will either be ACTIVE or FAILURE.
+         * For FAILUREs it is up to the calling system to intrepret how to handle this.
+         */
+        virtual const org_ryderrobots_ros2_serial_Status status() = 0;
     };
 }
 
