@@ -6,6 +6,13 @@ Software for running mousebot on Arduino BLE33
 
 USB Connection from Raspberry Pi to arduino Nano BLE33
 
+in /boot/firmware/config.txt connection needs to established with arduino, this can be done
+via command
+
+```shell
+max_usb_current=1
+```
+
 ## Communication Protocol
 
 ### Supported Commands

@@ -26,7 +26,7 @@
 #define RR_IMU_HPP
 
 #include "Arduino.h"
-#include <Arduino_LSM9DS1.h>
+#include <Arduino_BMI270_BMM150.h>
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "rr_serial.pb.h"
