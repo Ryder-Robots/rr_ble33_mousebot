@@ -29,5 +29,8 @@
 #include <rr_buffer.hpp>
 #include <wdt.hpp>
 #include <mb_op_factory.hpp>
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "rr_serial.pb.h"
 
 #endif // RR_BLE_MOUSEBOT_HPP

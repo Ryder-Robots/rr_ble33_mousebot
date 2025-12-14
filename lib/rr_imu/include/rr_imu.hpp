@@ -44,16 +44,20 @@ namespace mb_operations
      */
     class RRImuOpHandler : public mb_operations::MbOperationHandler
     {
+
     private:
         Madgwick filter_;
 
         org_ryderrobots_ros2_serial_Status status_ = org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_NOT_AVAILABLE;
 
+        unsigned long last_update_ms_ = 0;
+        static constexpr unsigned long UPDATE_INTERVAL_MS = 10; // 100Hz to match Madgwick filter
+
         // private methods
         void euler_to_quaternion(float roll, float pitch, float yaw,
                              float *q_w, float *q_x, float *q_y, float *q_z);
 
-        const org_ryderrobots_ros2_serial_Response & monitor(const org_ryderrobots_ros2_serial_Request &req);
+        void  monitor(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Response & res);
 
     public:
         RRImuOpHandler() = default;
@@ -63,7 +67,7 @@ namespace mb_operations
          * @fn status
          * @brief reported status to be used for feature list.
          */
-        const org_ryderrobots_ros2_serial_Status status() override;
+        org_ryderrobots_ros2_serial_Status status() override;
 
         /**
          * @fn init
@@ -93,7 +97,7 @@ namespace mb_operations
          * For z value this should always be assumed to be '0' as mousebot will not perform any incline raises while
          * solving a standard maze.
          */
-        const org_ryderrobots_ros2_serial_Response &perform_op(const org_ryderrobots_ros2_serial_Request &req) override;
+        void perform_op(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Response &response) override;
     };
 }
 

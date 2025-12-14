@@ -35,7 +35,7 @@ namespace mb_operations
         }
     }
 
-    const org_ryderrobots_ros2_serial_Status RRImuOpHandler::status()
+    org_ryderrobots_ros2_serial_Status RRImuOpHandler::status()
     {
         return status_;
     }
@@ -59,16 +59,22 @@ namespace mb_operations
     /*
      * perform monitor request
      */
-    const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::monitor(const org_ryderrobots_ros2_serial_Request &req)
+    void RRImuOpHandler::monitor(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Response &response)
     {
-        org_ryderrobots_ros2_serial_Response response =
-            org_ryderrobots_ros2_serial_Response_init_zero;
+        response = org_ryderrobots_ros2_serial_Response_init_zero;
         response.op = rr_ble::rr_op_code_t::MSP_RAW_IMU;
 
         float gx, gy, gz, ax, ay, az, qx, qy, qz, qw;
         IMU.readGyroscope(gx, gy, gz);
         IMU.readAcceleration(ax, ay, az);
-        filter_.updateIMU(gx, gy, gz, ax, ay, az);
+
+        // Rate limit filter updates to match configured sample rate (100Hz)
+        unsigned long current_ms = millis();
+        if (current_ms - last_update_ms_ >= UPDATE_INTERVAL_MS)
+        {
+            filter_.updateIMU(gx, gy, gz, ax, ay, az);
+            last_update_ms_ = current_ms;
+        }
 
         org_ryderrobots_ros2_serial_MspRawImu payload = org_ryderrobots_ros2_serial_MspRawImu_init_zero;
 
@@ -92,14 +98,11 @@ namespace mb_operations
         payload.linear_acceleration.z = az;
         payload.has_linear_acceleration = true;
         response.data.msp_raw_imu = payload;
-
-        return response;
     }
 
-    const org_ryderrobots_ros2_serial_Response &RRImuOpHandler::perform_op(const org_ryderrobots_ros2_serial_Request &req)
+    void RRImuOpHandler::perform_op(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Response &response)
     {
-        org_ryderrobots_ros2_serial_Response response =
-            org_ryderrobots_ros2_serial_Response_init_zero;
+        response = org_ryderrobots_ros2_serial_Response_init_zero;
         response.op = rr_ble::rr_op_code_t::MSP_RAW_IMU;
 
         // failure condition. set error
@@ -109,10 +112,8 @@ namespace mb_operations
             org_ryderrobots_ros2_serial_BadRequest bad_request =
                 org_ryderrobots_ros2_serial_BadRequest_init_zero;
             bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_SERVICE_UNAVAILABLE;
-            org_ryderrobots_ros2_serial_Response response =
-                org_ryderrobots_ros2_serial_Response_init_zero;
             response.data.bad_request = bad_request;
-            return response;
+            return;
         }
 
         // several actions may be supported by a specific sensor, so always
@@ -121,18 +122,15 @@ namespace mb_operations
         {
         // send request back
         case org_ryderrobots_ros2_serial_Monitor_is_request_tag:
-            response = monitor(req);
-            break;
+            return monitor(req, response);
 
         // error condition, unsupported request.
         default:
             org_ryderrobots_ros2_serial_BadRequest bad_request =
                 org_ryderrobots_ros2_serial_BadRequest_init_zero;
             bad_request.etype = org_ryderrobots_ros2_serial_ErrorType::org_ryderrobots_ros2_serial_ErrorType_ET_UNKNOWN_OPERATION;
-            org_ryderrobots_ros2_serial_Response response =
-                org_ryderrobots_ros2_serial_Response_init_zero;
             response.data.bad_request = bad_request;
+            return;
         }
-        return response;
     }
 }

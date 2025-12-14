@@ -21,43 +21,45 @@
 #ifndef MB_OPERATIONS_HPP
 #define MB_OPERATIONS_HPP
 
+#include <cstdint>
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "rr_serial.pb.h"
 
-namespace mb_operations {
+namespace mb_operations
+{
     /**
      * @class MbOperationHandler
      * @brief interface for operation handlers
-     * 
+     *
      * Provides interface for operation handlers. An operation is a specific operation that
      * protobuf provies. Operation handlers are expected to interpret a specific operation,
      * perform some sort of action, and return the result.
-     * 
+     *
      * All operations shall be objects managed within a factory object, which will instantiate the operation handlers during
      * its init() method.  This MUST be done during the setup() phase of the main loop, in order to ensure memory
-     * for every operation handler has been allocated. 
-     * 
-     * Operation handlers MAY at most be in charge of one sensor, or a range of a sensors of the same LINK_ID, for 
-     * instance a range_sensor operation handler MAY handle several range ultrasonic range sensors,  but CANNOT 
+     * for every operation handler has been allocated.
+     *
+     * Operation handlers MAY at most be in charge of one sensor, or a range of a sensors of the same LINK_ID, for
+     * instance a range_sensor operation handler MAY handle several range ultrasonic range sensors,  but CANNOT
      * handle ultrasonic and LIDAR sensors.
-     * 
+     *
      * During main loop execution, the factory object will return an appropriate operation handler pointer instance,
      * based upon the req.op value.
-     * 
+     *
      * The main loop when then call perform_op(req), and receive the a response, which it will return back
      * to Serial device.  Objects SHALL be owned by factory object.
-     * 
-     * CAVEAT: Note that because Arduino's main loop operates in one thread, and performs one action at a time. 
+     *
+     * CAVEAT: Note that because Arduino's main loop operates in one thread, and performs one action at a time.
      * This method does not pay attention to thread safety.
      */
-    class MbOperationHandler {
-        public:
-
+    class MbOperationHandler
+    {
+    public:
         /**
          * @fn init
          * @brief performs inilization of operation handler.
-         * 
+         *
          * As part of factory objects initilization procedure, init() for each component will be called, this
          * will perform any initalization operations.
          */
@@ -65,19 +67,19 @@ namespace mb_operations {
 
         /**
          * @fn perform_op
-         * @brief handles specific operation action. Response is the result of the action including any error 
+         * @brief handles specific operation action. Response is the result of the action including any error
          * state.
          */
-        virtual const org_ryderrobots_ros2_serial_Response & perform_op(const org_ryderrobots_ros2_serial_Request & req) = 0;
+        virtual void perform_op(const org_ryderrobots_ros2_serial_Request &req, org_ryderrobots_ros2_serial_Response &res) = 0;
 
         /**
          * @fn status
          * @brief reports back sensor status.
-         * 
+         *
          * For sensors that are supported by the micro-controller, statuses will either be ACTIVE or FAILURE.
          * For FAILUREs it is up to the calling system to intrepret how to handle this.
          */
-        virtual const org_ryderrobots_ros2_serial_Status status() = 0;
+        virtual org_ryderrobots_ros2_serial_Status status() = 0;
     };
 }
 

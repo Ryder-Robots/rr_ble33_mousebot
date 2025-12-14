@@ -155,7 +155,10 @@ void loop()
 
   if (status == org_ryderrobots_ros2_serial_Status::org_ryderrobots_ros2_serial_Status_READY)
   {
-    if (!pb_encode(&ostream, org_ryderrobots_ros2_serial_Response_fields, &handler->perform_op(req)))
+
+    org_ryderrobots_ros2_serial_Response res = org_ryderrobots_ros2_serial_Response_init_zero;
+    handler->perform_op(req, res);
+    if (!pb_encode(&ostream, org_ryderrobots_ros2_serial_Response_fields, &res))
     {
       // operation can not be deserialized.
       mberror::RRBadRequest rr_bad_request(ostream);

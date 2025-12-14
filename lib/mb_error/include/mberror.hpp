@@ -50,7 +50,7 @@ namespace mberror {
          * @param status status to describe error.
          * @return on success return zero, otherwise return non-zero value.
          */
-        virtual int serialize(org_ryderrobots_ros2_serial_ErrorType status) = 0;
+        virtual size_t serialize(org_ryderrobots_ros2_serial_ErrorType status) = 0;
         
         
         protected:
@@ -62,7 +62,7 @@ namespace mberror {
         public:
         explicit RRBadRequest(pb_ostream_t ostream): RRBlError(rr_ble::rr_op_code_t::BAD_REQUEST, ostream) {}
 
-        int serialize(org_ryderrobots_ros2_serial_ErrorType status) override;
+        size_t serialize(org_ryderrobots_ros2_serial_ErrorType status) override;
     };
 }
 

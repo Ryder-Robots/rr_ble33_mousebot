@@ -22,7 +22,7 @@
 
 namespace mberror
 {
-    int RRBadRequest::serialize(org_ryderrobots_ros2_serial_ErrorType etype)
+    size_t RRBadRequest::serialize(org_ryderrobots_ros2_serial_ErrorType etype)
     {
         // clear buffer
         org_ryderrobots_ros2_serial_BadRequest bad_request =
@@ -34,6 +34,7 @@ namespace mberror
         response.data.bad_request = bad_request;
 
         pb_encode(&ostream_, &org_ryderrobots_ros2_serial_Response_msg, &response);
-        return 0;
+
+        return ostream_.bytes_written;
     }
 }
