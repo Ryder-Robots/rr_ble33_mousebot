@@ -28,10 +28,6 @@
 #ifndef ARDUINO
 // Native testing - use Unity test framework
 #include <unity.h>
-#define test(name) void test_##name(void)
-#define assertTrue(x) TEST_ASSERT_TRUE(x)
-#define assertEqual(x, y) TEST_ASSERT_EQUAL(x, y)
-#define assertNear(x, y, eps) TEST_ASSERT_FLOAT_WITHIN(eps, y, x)
 
 // When testing natively, we need to define our mocks before including rr_imu.hpp
 #include "Arduino.h"
@@ -560,40 +556,37 @@ test(filter_update_rate_limiting) {
 // ============================================================================
 
 #ifndef ARDUINO
-// Unity test runner
-void setUp(void) {
-    // Set up code before each test if needed
-}
+// Native test runner
+int main() {
+    printf("Running rr_imu tests in native environment\n\n");
 
-void tearDown(void) {
-    // Clean up code after each test if needed
-}
+    // Run all tests
+    euler_to_quaternion_identity();
+    euler_to_quaternion_roll_90();
+    euler_to_quaternion_pitch_90();
+    euler_to_quaternion_yaw_90();
+    euler_to_quaternion_combined_angles();
+    euler_to_quaternion_negative_angles();
 
-int main(void) {
-    UNITY_BEGIN();
+    protobuf_serialization_response_structure();
+    protobuf_serialization_msp_raw_imu();
+    protobuf_serialization_bad_request();
+    protobuf_serialization_request_monitor();
 
-    // Euler to quaternion tests
-    RUN_TEST(test_euler_to_quaternion_identity);
-    RUN_TEST(test_euler_to_quaternion_roll_90);
-    RUN_TEST(test_euler_to_quaternion_pitch_90);
-    RUN_TEST(test_euler_to_quaternion_yaw_90);
-    RUN_TEST(test_euler_to_quaternion_combined_angles);
-    RUN_TEST(test_euler_to_quaternion_negative_angles);
+    monitor_function_creates_valid_response();
+    perform_op_with_monitor_request();
+    perform_op_service_unavailable();
+    perform_op_unknown_operation();
+    filter_update_rate_limiting();
 
-    // Protobuf serialization tests
-    RUN_TEST(test_protobuf_serialization_response_structure);
-    RUN_TEST(test_protobuf_serialization_msp_raw_imu);
-    RUN_TEST(test_protobuf_serialization_bad_request);
-    RUN_TEST(test_protobuf_serialization_request_monitor);
+    // Print results
+    printf("\n========================================\n");
+    printf("Test Results:\n");
+    printf("  PASSED: %d\n", test_passed);
+    printf("  FAILED: %d\n", test_failed);
+    printf("========================================\n");
 
-    // Integration tests
-    RUN_TEST(test_monitor_function_creates_valid_response);
-    RUN_TEST(test_perform_op_with_monitor_request);
-    RUN_TEST(test_perform_op_service_unavailable);
-    RUN_TEST(test_perform_op_unknown_operation);
-    RUN_TEST(test_filter_update_rate_limiting);
-
-    return UNITY_END();
+    return (test_failed > 0) ? 1 : 0;
 }
 #else
 // Arduino test runner
