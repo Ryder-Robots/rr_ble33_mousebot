@@ -18,11 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef ARDUINO
 #include <unity.h>
-#else
-#include <AUnit.h>
-#endif
 
 #include <rr_buffer.hpp>
 #include <mberror.hpp>
@@ -30,7 +26,6 @@
 using namespace rr_buffer;
 using namespace mberror;
 
-#ifndef ARDUINO
 /**
  * same unit test as mb_error, but uses the buffer.
  */
@@ -69,42 +64,3 @@ int main(void) {
     RUN_TEST(test_bad_request_buf);
     return UNITY_END();
 }
-
-#else
-// Arduino version with AUnit
-/**
- * same unit test as mb_error, but uses the buffer.
- */
-test(test_bad_request_buf)
-{
-    RRBuffer &buf = RRBuffer::get_instance();
-    pb_ostream_t ostream = pb_ostream_from_buffer(buf.obuf_ptr(), BUFSIZ);
-    RRBadRequest rr_bad_request(ostream);
-    org_ryderrobots_ros2_serial_ErrorType test_etype = org_ryderrobots_ros2_serial_ErrorType_ET_MAX_LEN_EXCEED;
-
-    int result = rr_bad_request.serialize(test_etype);
-
-    assertEqual(0, result);
-    assertEqual(0, buf.obuf_ptr()[0]); // Verify protobuf starts correctly
-    assertEqual(0, buf.obuf_ptr()[1]); // Verify data written (op_code)
-
-    // Decode to verify contents
-    org_ryderrobots_ros2_serial_Response decoded_response = org_ryderrobots_ros2_serial_Response_init_zero;
-    pb_istream_t istream = pb_istream_from_buffer(buf.obuf_ptr(), BUFSIZ);
-    bool decode_status = pb_decode(&istream, &org_ryderrobots_ros2_serial_Response_msg, &decoded_response);
-
-    assertTrue(decode_status);
-    assertEqual(test_etype, decoded_response.data.bad_request.etype); // Verify etype
-}
-
-void setup()
-{
-    aunit::TestRunner::run();
-}
-
-void loop()
-{
-    // Run tests once in loop
-    delay(1000);
-}
-#endif

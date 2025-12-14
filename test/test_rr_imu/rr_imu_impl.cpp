@@ -123,7 +123,7 @@ namespace mb_operations
         switch (req.which_data)
         {
         // send request back
-        case org_ryderrobots_ros2_serial_Monitor_is_request_tag:
+        case org_ryderrobots_ros2_serial_Request_monitor_tag:
             return monitor(req, response);
 
         // error condition, unsupported request.

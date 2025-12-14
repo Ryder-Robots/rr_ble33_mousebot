@@ -1,0 +1,62 @@
+[
+    {
+        "command": "/usr/bin/gcc -o .pio/build/native/nanopb/generated-build/rr_serial.pb.o -c -DPLATFORMIO=60118 -I.pio/libdeps/native/Nanopb -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include -I.pio/build/native/nanopb/generated-src .pio/build/native/nanopb/generated-src/rr_serial.pb.c",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": ".pio/build/native/nanopb/generated-src/rr_serial.pb.c",
+        "output": ".pio/build/native/nanopb/generated-build/rr_serial.pb.o"
+    },
+    {
+        "command": "/usr/bin/gcc -o .pio/build/native/libcfb/Nanopb/pb_common.o -c -DPLATFORMIO=60118 -I.pio/libdeps/native/Nanopb -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include -I.pio/build/native/nanopb/generated-src .pio/libdeps/native/Nanopb/pb_common.c",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": ".pio/libdeps/native/Nanopb/pb_common.c",
+        "output": ".pio/build/native/libcfb/Nanopb/pb_common.o"
+    },
+    {
+        "command": "/usr/bin/gcc -o .pio/build/native/libcfb/Nanopb/pb_decode.o -c -DPLATFORMIO=60118 -I.pio/libdeps/native/Nanopb -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include -I.pio/build/native/nanopb/generated-src .pio/libdeps/native/Nanopb/pb_decode.c",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": ".pio/libdeps/native/Nanopb/pb_decode.c",
+        "output": ".pio/build/native/libcfb/Nanopb/pb_decode.o"
+    },
+    {
+        "command": "/usr/bin/gcc -o .pio/build/native/libcfb/Nanopb/pb_encode.o -c -DPLATFORMIO=60118 -I.pio/libdeps/native/Nanopb -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include -I.pio/build/native/nanopb/generated-src .pio/libdeps/native/Nanopb/pb_encode.c",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": ".pio/libdeps/native/Nanopb/pb_encode.c",
+        "output": ".pio/build/native/libcfb/Nanopb/pb_encode.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/lib73b/Nanopb_Cpp/nanopb_cpp.o -c -std=gnu++11 -DPLATFORMIO=60118 -I.pio/libdeps/native/Nanopb_Cpp -I.pio/libdeps/native/Nanopb -I.pio/build/native/nanopb/generated-src -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include .pio/libdeps/native/Nanopb_Cpp/nanopb_cpp.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": ".pio/libdeps/native/Nanopb_Cpp/nanopb_cpp.cpp",
+        "output": ".pio/build/native/lib73b/Nanopb_Cpp/nanopb_cpp.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/lib086/mb_error/mberror.o -c -std=gnu++11 -DPLATFORMIO=60118 -Ilib/mb_error/include -Ilib/mb_error/src -Ilib/mb_operations -I.pio/libdeps/native/Nanopb -I.pio/build/native/nanopb/generated-src -Ilib/rr_ble -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include lib/mb_error/src/mberror.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": "lib/mb_error/src/mberror.cpp",
+        "output": ".pio/build/native/lib086/mb_error/mberror.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/libe09/rr_buffer/rr_buffer.o -c -std=gnu++11 -DPLATFORMIO=60118 -Ilib/rr_buffer/include -Ilib/rr_buffer/src -Ilib/mb_operations -I.pio/libdeps/native/Nanopb -I.pio/build/native/nanopb/generated-src -Ilib/rr_ble -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include lib/rr_buffer/src/rr_buffer.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": "lib/rr_buffer/src/rr_buffer.cpp",
+        "output": ".pio/build/native/libe09/rr_buffer/rr_buffer.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/lib21b/wdt/wdt.o -c -std=gnu++11 -DPLATFORMIO=60118 -Ilib/wdt/include -Ilib/wdt/src -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include lib/wdt/src/wdt.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": "lib/wdt/src/wdt.cpp",
+        "output": ".pio/build/native/lib21b/wdt/wdt.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/libd24/mb_op_factory/mb_op_factory.o -c -std=gnu++11 -DPLATFORMIO=60118 -Ilib/mb_op_factory/include -Ilib/mb_op_factory/src -I.pio/libdeps/native/Nanopb -I.pio/build/native/nanopb/generated-src -Ilib/mb_operations -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include lib/mb_op_factory/src/mb_op_factory.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": "lib/mb_op_factory/src/mb_op_factory.cpp",
+        "output": ".pio/build/native/libd24/mb_op_factory/mb_op_factory.o"
+    },
+    {
+        "command": "/usr/bin/g++ -o .pio/build/native/src/main.o -c -std=gnu++11 -DPLATFORMIO=60118 -Iinclude -Isrc -Ilib/mb_op_factory/include -Ilib/mb_op_factory/src -Ilib/wdt/include -Ilib/wdt/src -Ilib/rr_buffer/include -Ilib/rr_buffer/src -Ilib/mb_error/include -Ilib/mb_error/src -Ilib/mb_operations -Ilib/rr_ble -I.pio/libdeps/native/Nanopb_Cpp -I.pio/libdeps/native/Nanopb -I.pio/build/native/nanopb/generated-src -Itest/test_rr_imu -Ilib/rr_imu/include -Ilib/mb_operations/include -Ilib/rr_ble/include src/main.cpp",
+        "directory": "/Users/newuser/Documents/PlatformIO/Projects/rr_ble33_mousebot",
+        "file": "src/main.cpp",
+        "output": ".pio/build/native/src/main.o"
+    }
+]
