@@ -9,14 +9,20 @@ Python tools for communicating with the Arduino Nano BLE 33 mousebot via USB ser
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get update
-sudo apt-get install python3 python3-pip protobuf-compiler python3-protobuf
+sudo apt-get install python3 python3-pip protobuf-compiler python3-protobuf python3.12-venv
+python3 -m venv venv
+source venv/bin/activate 
 pip3 install pyserial protobuf
+python utilities/protoc_prebuild.py
 ```
 
 **macOS:**
 ```bash
-brew install protobuf
+brew install protobuf python3.12-venv
+python3 -m venv venv
+source venv/bin/activate 
 pip3 install pyserial protobuf
+python utilities/protoc_prebuild.py
 ```
 
 ### 2. Generate Protobuf Files
