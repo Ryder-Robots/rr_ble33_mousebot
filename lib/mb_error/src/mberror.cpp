@@ -32,6 +32,7 @@ namespace mberror
             org_ryderrobots_ros2_serial_Response_init_zero;
         response.op = op_code_;
         response.data.bad_request = bad_request;
+        response.which_data = org_ryderrobots_ros2_serial_Response_bad_request_tag;
 
         pb_encode(&ostream_, &org_ryderrobots_ros2_serial_Response_msg, &response);
 
