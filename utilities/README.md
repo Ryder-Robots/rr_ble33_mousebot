@@ -1,6 +1,6 @@
-# Mousebot USB Serial Utilities
+# Mousebot Communication Utilities
 
-Python tools for communicating with the Arduino Nano BLE 33 mousebot via USB serial.
+Python tools for communicating with the Arduino Nano BLE 33 mousebot via USB serial or ROS2 topics.
 
 ## Setup
 
@@ -61,9 +61,20 @@ sudo chmod 666 /dev/ttyACM0
 # Then log out and back in
 ```
 
+## Available Clients
+
+This package provides two communication methods:
+
+| Client | Communication Method | Use Case |
+|--------|---------------------|----------|
+| `mousebot_serial_client.py` | Direct USB serial | Standalone testing, debugging, direct hardware access |
+| `mousebot_ros2_client.py` | ROS2 topics (`/serial_write`, `/serial_read`) | ROS2 integration, distributed systems, topic-based architecture |
+
 ## Usage
 
-### Basic IMU Request
+### Serial Client (Direct USB)
+
+#### Basic IMU Request
 
 Request IMU data once:
 
@@ -98,7 +109,7 @@ Linear Acceleration (g):
 Disconnected
 ```
 
-### Continuous Monitoring
+#### Continuous Monitoring
 
 Monitor IMU at 10Hz (10 samples per second):
 
@@ -108,7 +119,7 @@ Monitor IMU at 10Hz (10 samples per second):
 
 Press `Ctrl+C` to stop.
 
-### Raw Operation Codes
+#### Raw Operation Codes
 
 Send raw MSP operation code:
 
@@ -117,7 +128,7 @@ Send raw MSP operation code:
 ./mousebot_serial_client.py --port /dev/ttyACM0 --op-code 102
 ```
 
-### All Options
+#### All Options
 
 ```bash
 ./mousebot_serial_client.py --help
@@ -171,7 +182,9 @@ This means the IMU sensor is not ready or failed initialization.
 
 ## Troubleshooting
 
-### "Could not open /dev/ttyACM0"
+### Serial Client Issues
+
+#### "Could not open /dev/ttyACM0"
 
 **Causes:**
 1. Device not connected
@@ -194,14 +207,14 @@ sudo usermod -a -G dialout $USER
 sudo chmod 666 /dev/ttyACM0
 ```
 
-### "Could not import rr_serial_pb2"
+#### "Could not import rr_serial_pb2"
 
 Run the setup script to generate protobuf files:
 ```bash
 ./setup_proto.sh
 ```
 
-### "Response timeout"
+#### "Response timeout"
 
 **Causes:**
 1. Arduino not responding
@@ -217,11 +230,70 @@ Run the setup script to generate protobuf files:
 # Re-upload firmware via PlatformIO if needed
 ```
 
-### Empty or Corrupted Response
+#### Empty or Corrupted Response
 
 1. Reset the Arduino (disconnect/reconnect USB)
 2. Wait 2 seconds after connecting before sending commands
 3. Check baud rate matches firmware (115200)
+
+### ROS2 Client Issues
+
+#### "No response received" or timeout
+
+**Causes:**
+1. Serial bridge node not running
+2. Topics not properly connected
+3. Serial bridge not configured correctly
+
+**Solutions:**
+```bash
+# Check if ROS2 topics exist
+ros2 topic list | grep serial
+
+# Check if serial bridge is publishing/subscribing
+ros2 topic info /serial_read
+ros2 topic info /serial_write
+
+# Monitor topics for activity
+ros2 topic echo /serial_read
+ros2 topic echo /serial_write
+
+# Verify bridge node is running
+ros2 node list
+```
+
+#### Cannot import rclpy or std_msgs
+
+**Solution:**
+```bash
+# Source ROS2 environment
+source /opt/ros/<distro>/setup.bash
+
+# For ROS2 Humble
+source /opt/ros/humble/setup.bash
+
+# For ROS2 Iron
+source /opt/ros/iron/setup.bash
+
+# Verify installation
+python3 -c "import rclpy; import std_msgs"
+```
+
+#### Messages not being received by bridge
+
+**Check message format:**
+- Ensure the serial bridge expects `std_msgs::msg::UInt8MultiArray`
+- Verify the bridge correctly handles the terminator character (0x1E)
+- Check that the bridge is subscribing to `/serial_write` and publishing to `/serial_read`
+
+**Debug with topic echo:**
+```bash
+# In one terminal, monitor what's being sent
+ros2 topic echo /serial_write
+
+# In another terminal, run the client
+./mousebot_ros2_client.py --operation imu
+```
 
 ## Python API Usage
 
@@ -249,9 +321,64 @@ if client.connect():
     client.disconnect()
 ```
 
-## Integration with ROS2
+## ROS2 Topic-Based Client
 
-This client can be integrated into ROS2 nodes:
+For ROS2 environments, use `mousebot_ros2_client.py` which communicates via topics instead of direct serial:
+
+### Setup for ROS2
+
+```bash
+# Install ROS2 dependencies (if not already installed)
+# Follow ROS2 installation instructions for your platform
+
+# Ensure std_msgs is available
+source /opt/ros/<distro>/setup.bash
+
+# Generate protobuf files (same as serial client)
+./setup_proto.sh
+```
+
+### Usage
+
+The ROS2 client publishes to `/serial_write` and subscribes to `/serial_read`:
+
+```bash
+# Single IMU request
+./mousebot_ros2_client.py --operation imu
+
+# Continuous monitoring at 10Hz
+./mousebot_ros2_client.py --operation imu --rate 10
+
+# Raw operation code
+./mousebot_ros2_client.py --op-code 102
+
+# Get help
+./mousebot_ros2_client.py --help
+```
+
+**Options:**
+- `--operation`, `-o`: Predefined operation (`imu`, `features`)
+- `--op-code`: Raw operation code to send
+- `--rate`, `-r`: Continuous monitoring rate in Hz
+- `--timeout`, `-t`: Response timeout in seconds (default: `2.0`)
+
+### Prerequisites
+
+The ROS2 client requires a serial bridge node that:
+1. Subscribes to `/serial_write` topic (`std_msgs::msg::UInt8MultiArray`)
+2. Forwards data to the physical serial port
+3. Reads responses from serial port
+4. Publishes to `/serial_read` topic (`std_msgs::msg::UInt8MultiArray`)
+
+### Message Format
+
+Messages on both topics use `std_msgs::msg::UInt8MultiArray`:
+- **Data:** Serialized protobuf message bytes followed by terminator (`0x1E`)
+- **Layout:** `[Protobuf bytes...][0x1E]`
+
+### Integration Example
+
+Using the serial client directly in ROS2 nodes:
 
 ```python
 import rclpy
@@ -297,6 +424,28 @@ See [proto/rr_serial.proto](../proto/rr_serial.proto) for the complete protocol 
 - **Main Loop Throttle:** 5ms (200Hz max request rate)
 - **IMU Filter Rate:** 100Hz
 - **Recommended Request Rate:** ≤100Hz for IMU
+
+## Quick Reference
+
+### Command Comparison
+
+| Task | Serial Client | ROS2 Client |
+|------|--------------|-------------|
+| Single IMU request | `./mousebot_serial_client.py -p /dev/ttyACM0 -o imu` | `./mousebot_ros2_client.py -o imu` |
+| Continuous at 10Hz | `./mousebot_serial_client.py -p /dev/ttyACM0 -o imu -r 10` | `./mousebot_ros2_client.py -o imu -r 10` |
+| Raw op code | `./mousebot_serial_client.py -p /dev/ttyACM0 --op-code 102` | `./mousebot_ros2_client.py --op-code 102` |
+| Help | `./mousebot_serial_client.py --help` | `./mousebot_ros2_client.py --help` |
+
+### Feature Comparison
+
+| Feature | Serial Client | ROS2 Client |
+|---------|--------------|-------------|
+| Direct hardware access | ✓ | ✗ |
+| Works without ROS2 | ✓ | ✗ |
+| Requires serial permissions | ✓ | ✗ |
+| Topic-based communication | ✗ | ✓ |
+| Works in distributed ROS2 systems | ✗ | ✓ |
+| Requires serial bridge | ✗ | ✓ |
 
 ## License
 

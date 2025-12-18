@@ -67,6 +67,8 @@ Testing connection to /dev/ttyACM0...
 
 ## Step 5: Request IMU Data
 
+### Option A: Direct USB Serial Communication
+
 ```bash
 # Single request
 ./mousebot_serial_client.py --port /dev/ttyACM0 --operation imu
@@ -74,6 +76,26 @@ Testing connection to /dev/ttyACM0...
 # Continuous at 10Hz
 ./mousebot_serial_client.py --port /dev/ttyACM0 --operation imu --rate 10
 ```
+
+### Option B: ROS2 Topic Communication
+
+For ROS2 environments, use the topic-based client:
+
+```bash
+# Prerequisites: ROS2 must be running with a serial bridge node
+# The bridge should publish to /serial_read and subscribe to /serial_write
+
+# Single request
+./mousebot_ros2_client.py --operation imu
+
+# Continuous at 10Hz
+./mousebot_ros2_client.py --operation imu --rate 10
+```
+
+**Note:** The ROS2 client requires:
+- ROS2 installation with `std_msgs`
+- A serial bridge node that forwards messages between `/serial_write`, `/serial_read` topics and the physical serial port
+- Generated protobuf files (same as serial client)
 
 ## Troubleshooting
 
@@ -112,6 +134,8 @@ ls -l /dev/tty* | grep -i acm
 
 ## Common Commands
 
+### Serial Client
+
 ```bash
 # Get help
 ./mousebot_serial_client.py --help
@@ -124,4 +148,20 @@ ls -l /dev/tty* | grep -i acm
 
 # Different port (macOS)
 ./mousebot_serial_client.py -p /dev/tty.usbmodem14201 -o imu
+```
+
+### ROS2 Client
+
+```bash
+# Get help
+./mousebot_ros2_client.py --help
+
+# IMU at 100Hz (matches filter rate)
+./mousebot_ros2_client.py -o imu -r 100
+
+# Raw op code
+./mousebot_ros2_client.py --op-code 102
+
+# Features request
+./mousebot_ros2_client.py -o features
 ```
